@@ -1,0 +1,29 @@
+@host = http://127.0.0.1:5211
+@apiKey = {{$processEnv COPILOT_UIPATH_BRIDGE_API_KEY}}
+
+GET {{host}}/health
+Accept: application/json
+
+###
+
+GET {{host}}/api/processes
+Accept: application/json
+
+###
+
+POST {{host}}/api/jobs
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+Idempotency-Key: {{$guid}}
+X-Request-Timestamp: {{$datetime iso8601}}
+
+{
+  "processAlias": "CopilotAttendedPoC",
+  "requestedBy": "synthetic-test-user",
+  "inputs": {
+    "in_Message": "This synthetic attended automation was requested locally.",
+    "in_RequestedBy": "synthetic-test-user"
+  }
+}
+
+###
