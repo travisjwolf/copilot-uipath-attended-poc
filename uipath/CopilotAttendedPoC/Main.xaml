@@ -1,0 +1,82 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}"
+xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+xmlns:ui="http://schemas.uipath.com/workflow/activities"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <x:Members>
+        <x:Property Name="in_RequestId" Type="InArgument(x:String)" />
+        <x:Property Name="in_Message" Type="InArgument(x:String)" />
+        <x:Property Name="in_RequestedBy" Type="InArgument(x:String)" />
+        <x:Property Name="out_Result" Type="OutArgument(x:String)" />
+    </x:Members>
+    <TextExpression.NamespacesForImplementation>
+        <sco:Collection x:TypeArguments="x:String">
+            <x:String>System.Activities</x:String>
+            <x:String>System.Activities.Statements</x:String>
+            <x:String>System.Activities.Expressions</x:String>
+            <x:String>System.Activities.Validation</x:String>
+            <x:String>System.Activities.XamlIntegration</x:String>
+            <x:String>Microsoft.VisualBasic</x:String>
+            <x:String>Microsoft.VisualBasic.Activities</x:String>
+            <x:String>System</x:String>
+            <x:String>System.Collections</x:String>
+            <x:String>System.Collections.Generic</x:String>
+            <x:String>System.Collections.ObjectModel</x:String>
+            <x:String>System.Data</x:String>
+            <x:String>System.Diagnostics</x:String>
+            <x:String>System.Drawing</x:String>
+            <x:String>System.IO</x:String>
+            <x:String>System.Linq</x:String>
+            <x:String>System.Net.Mail</x:String>
+            <x:String>System.Xml</x:String>
+            <x:String>System.Xml.Linq</x:String>
+            <x:String>UiPath.Core</x:String>
+            <x:String>UiPath.Core.Activities</x:String>
+            <x:String>System.Windows.Markup</x:String>
+        </sco:Collection>
+    </TextExpression.NamespacesForImplementation>
+    <TextExpression.ReferencesForImplementation>
+        <sco:Collection x:TypeArguments="AssemblyReference">
+            <AssemblyReference>System.Activities</AssemblyReference>
+            <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+            <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+            <AssemblyReference>mscorlib</AssemblyReference>
+            <AssemblyReference>System.Data</AssemblyReference>
+            <AssemblyReference>System</AssemblyReference>
+            <AssemblyReference>System.Linq</AssemblyReference>
+            <AssemblyReference>System.Data.Common</AssemblyReference>
+            <AssemblyReference>System.Drawing</AssemblyReference>
+            <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+            <AssemblyReference>System.Drawing.Common</AssemblyReference>
+            <AssemblyReference>System.Core</AssemblyReference>
+            <AssemblyReference>System.Xml</AssemblyReference>
+            <AssemblyReference>System.Xml.Linq</AssemblyReference>
+            <AssemblyReference>PresentationFramework</AssemblyReference>
+            <AssemblyReference>WindowsBase</AssemblyReference>
+            <AssemblyReference>PresentationCore</AssemblyReference>
+            <AssemblyReference>System.Xaml</AssemblyReference>
+            <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+            <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+            <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+            <AssemblyReference>System.Net.Mail</AssemblyReference>
+        </sco:Collection>
+    </TextExpression.ReferencesForImplementation>
+    <Sequence DisplayName="Synthetic Notepad Demonstration" sap2010:WorkflowViewState.IdRef="Sequence_1">
+        <ui:LogMessage DisplayName="Log Synthetic Request Metadata" Message="[&quot;Starting synthetic attended request &quot; &amp; in_RequestId]" sap2010:WorkflowViewState.IdRef="LogMessage_1" />
+        <ui:InvokeCode Code="If String.IsNullOrWhiteSpace(in_Message) Then&#xD;&#xA;    Throw New System.ArgumentException(&quot;in_Message is required.&quot;)&#xD;&#xA;End If&#xD;&#xA;&#xD;&#xA;Dim requestGuid As System.Guid&#xD;&#xA;If Not System.Guid.TryParse(in_RequestId, requestGuid) Then&#xD;&#xA;    Throw New System.ArgumentException(&quot;in_RequestId must be a GUID.&quot;)&#xD;&#xA;End If&#xD;&#xA;&#xD;&#xA;Dim fileName As String = &quot;CopilotAttendedPoC-&quot; &amp; requestGuid.ToString(&quot;N&quot;) &amp; &quot;.txt&quot;&#xD;&#xA;Dim filePath As String = System.IO.Path.Combine(System.IO.Path.GetTempPath(), fileName)&#xD;&#xA;System.IO.File.WriteAllText(filePath, in_Message, New System.Text.UTF8Encoding(False))&#xD;&#xA;&#xD;&#xA;Dim startInfo As New System.Diagnostics.ProcessStartInfo(&quot;notepad.exe&quot;) With { .UseShellExecute = True }&#xD;&#xA;startInfo.ArgumentList.Add(filePath)&#xD;&#xA;If System.Diagnostics.Process.Start(startInfo) Is Nothing Then&#xD;&#xA;    Throw New System.InvalidOperationException(&quot;Notepad could not be started.&quot;)&#xD;&#xA;End If&#xD;&#xA;&#xD;&#xA;Dim targetWindow As System.Diagnostics.Process = Nothing&#xD;&#xA;Dim windowDeadline As System.DateTime = System.DateTime.UtcNow.AddSeconds(10)&#xD;&#xA;Do&#xD;&#xA;    For Each candidate As System.Diagnostics.Process In System.Diagnostics.Process.GetProcessesByName(&quot;notepad&quot;)&#xD;&#xA;        candidate.Refresh()&#xD;&#xA;        If candidate.MainWindowHandle &lt;&gt; System.IntPtr.Zero AndAlso candidate.MainWindowTitle.IndexOf(fileName, System.StringComparison.OrdinalIgnoreCase) &gt;= 0 Then&#xD;&#xA;            targetWindow = candidate&#xD;&#xA;            Exit For&#xD;&#xA;        End If&#xD;&#xA;    Next&#xD;&#xA;&#xD;&#xA;    If targetWindow Is Nothing Then&#xD;&#xA;        System.Threading.Thread.Sleep(200)&#xD;&#xA;    End If&#xD;&#xA;Loop While targetWindow Is Nothing AndAlso System.DateTime.UtcNow &lt; windowDeadline&#xD;&#xA;&#xD;&#xA;If targetWindow Is Nothing Then&#xD;&#xA;    Throw New System.TimeoutException(&quot;The synthetic Notepad window was not found.&quot;)&#xD;&#xA;End If&#xD;&#xA;&#xD;&#xA;out_Result = &quot;Synthetic Notepad demonstration completed for request &quot; &amp; in_RequestId &amp; &quot;.&quot;" ContinueOnError="{x:Null}" DisplayName="Open Notepad and Display Synthetic Message" sap2010:WorkflowViewState.IdRef="InvokeCode_1">
+            <ui:InvokeCode.Arguments>
+                <scg:Dictionary x:TypeArguments="x:String, Argument">
+                    <InArgument x:Key="in_RequestId" x:TypeArguments="x:String">[in_RequestId]</InArgument>
+                    <InArgument x:Key="in_Message" x:TypeArguments="x:String">[in_Message]</InArgument>
+                    <InArgument x:Key="in_RequestedBy" x:TypeArguments="x:String">[in_RequestedBy]</InArgument>
+                    <OutArgument x:Key="out_Result" x:TypeArguments="x:String">[out_Result]</OutArgument>
+                </scg:Dictionary>
+            </ui:InvokeCode.Arguments>
+        </ui:InvokeCode>
+    </Sequence>
+</Activity>

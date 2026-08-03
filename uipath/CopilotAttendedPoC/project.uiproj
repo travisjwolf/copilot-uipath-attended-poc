@@ -1,0 +1,6 @@
+{
+  "Name": "CopilotAttendedPoC",
+  "ProjectType": "Process",
+  "Description": "Synthetic attended Notepad demonstration for the localhost Copilot bridge.",
+  "MainFile": "Main.xaml"
+}
