@@ -1,0 +1,40 @@
+# .NET build output
+**/bin/
+**/obj/
+artifacts/
+TestResults/
+coverage/
+coverage.*
+
+# IDE and user state
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+secrets.json
+credentials*.json
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+*.crt
+
+# UiPath-generated local state
+.local/
+.settings/
+.objects/
+*.nupkg
+
+# OS files
+Thumbs.db
+.DS_Store
