@@ -118,20 +118,28 @@ The now-unblocked Phase 7 artifacts are under `docs/power-platform/`:
 - `custom-connector.swagger.json` defines the three OpenAPI 2.0 connector
   actions with gateway-compatible Basic authentication.
 - `on-premises-data-gateway.md` preserves the localhost-only gateway boundary.
-- `copilot-studio-agent-flow.md` describes the idempotent flow and polling loop.
+- `copilot-studio-agent-flow.md` describes the two-flow, long-running job
+  pattern.
 - `tool-descriptions.md` and `mock-responses.md` provide safe agent guidance.
 
-Validated on August 4, 2026, in `UiPath (default) (Upgrade)`:
+Validated on August 5, 2026, in `UiPath (default) (Upgrade)`:
 
 - Unmanaged solution: `Copilot UiPath Attended PoC`
 - Connector: `Copilot UiPath Attended Bridge`
 - Gateway: `CopilotUiPathAttendedPoc-Gateway-01` in North Europe
 - Synthetic request `829ab915-b780-4cda-88b8-4f10d30beac5`: `Completed`
-- Agent flow: `Run UiPath Attended PoC` with zero flow-checker errors or warnings
-- Power Automate run `08584157111616627324376857134CU39`: `Succeeded`
-- Flow request `c2ef7927-6053-4f78-99a5-29b62bdc4554`: `Completed` through
-  local RobotAPI with the expected synthetic `out_Result`
+- Start flow: `Run UiPath Attended PoC` (`c038be90-0784-1508-8fe7-4edf50392f43`)
+  returns `Accepted` and the bridge-generated request ID without waiting for the
+  attended process.
+- Status flow: `Check UiPath Attended Job Status`
+  (`e27c2ebf-b390-f111-8077-7c1e524f344c`) returns only safe status fields.
+- Power Automate observed `Running` for a five-minute fake job and `Completed`
+  for both a delayed fake job and a real local RobotAPI job.
+- Both flows are on, belong to the unmanaged solution, and have zero flow-checker
+  errors or warnings.
 
-The initial agent flow starts the allowlisted process with synthetic inputs.
-Status polling and the final agent response remain the next increment. No
-public endpoint or production integration has been provisioned.
+This avoids holding one connector request open during an attended run that can
+take ten minutes. Poll with the status flow at 15-second intervals, capped at
+48 checks or 12 minutes, or use Copilot Studio asynchronous responses only
+after confirming the target channel supports them. No public endpoint or
+production integration has been provisioned.

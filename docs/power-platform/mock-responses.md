@@ -11,6 +11,8 @@ a bridge job-status enum.
 | Running | "The synthetic UiPath demonstration is running in the active desktop session." |
 | Completed | "The desktop demonstration completed: `{out_Result}`" |
 | Failed | "The desktop demonstration could not complete. No sensitive input was logged. Request ID: `{requestId}`." |
+| Cancelled | "The desktop demonstration was cancelled. Request ID: `{requestId}`." |
+| TimedOut | "The desktop demonstration is still not complete after the 12-minute monitoring window. Request ID: `{requestId}`." |
 | DesktopUnavailable | "The attended desktop is unavailable. Unlock the workstation, confirm UiPath Assistant and the local bridge are running, then try again." |
 
 ## Adaptive Card Template

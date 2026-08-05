@@ -10,42 +10,60 @@
    username `CopilotGateway` and the bridge API key as the password; do not paste
    the key into a flow action or agent instruction.
 
-## Build The Agent Flow
+## Build The Start Flow
 
-Create an agent flow with **When an agent calls the flow** and **Respond to the
-agent**. Accept only `message` and `requestedBy` string inputs.
+Create `Run UiPath Attended PoC` with **When an agent calls the flow** and
+**Respond to the agent**. Accept only `message` and `requestedBy` strings.
 
-1. Add a Compose action named `IdempotencyKey` with expression `guid()`.
-2. Add a Compose action named `RequestTimestamp` with expression `utcNow()`.
-3. Call `StartUiPathAttendedJob`. Set the alias to `CopilotAttendedPoC`, map the
-   two synthetic inputs, and use the Compose outputs for both headers.
-4. Save the returned `requestId`; never accept a request ID from the agent.
-5. Poll `GetUiPathAttendedJobStatus` with a short Delay inside a bounded Do Until
-   loop. Stop on `Completed`, `Failed`, or `Cancelled`, and enforce a flow timeout.
-6. Optionally call `CancelUiPathAttendedJob` when the user explicitly cancels or
-   the bounded wait expires.
-7. Respond to the agent with `requestId`, `status`, `out_Result`, and a safe
-   display message. Do not return bridge exception details.
+1. Compose `guid()` as `IdempotencyKey` and `utcNow()` as `RequestTimestamp`.
+2. Call `StartUiPathAttendedJob` for alias `CopilotAttendedPoC` with the two
+   synthetic inputs and both composed headers.
+3. Immediately return `requestId`, `status`, and `message`. Do not poll or wait
+   for desktop completion in this flow.
 
-Disable connector automatic retries for non-idempotent starts only if the flow
-cannot guarantee reuse of the composed idempotency key. A retry must reuse the
-same key and request body.
+Generate the idempotency key once per invocation and reuse it with the same body
+for every retry. Never accept a request ID from agent text.
+
+## Build The Status Flow
+
+Create `Check UiPath Attended Job Status` with one `requestId` string input.
+Call `GetUiPathAttendedJobStatus`, then return `requestId`, `status`,
+`outResult`, and `error`. Treat the request ID as an opaque value originally
+returned by the start flow. Do not return bridge exception details.
+
+Use this channel-independent polling policy:
+
+- Query at most once every 15 seconds.
+- Stop on `Completed`, `Failed`, or `Cancelled`.
+- Stop after 48 checks or 12 minutes and present a safe timeout message.
+- Call `CancelUiPathAttendedJob` only for an explicit user cancellation or a
+  policy decision to cancel after the bounded wait.
+- Do not keep one gateway HTTP request open for the attended job runtime.
+
+For conversational channels, return `Accepted` immediately and let the agent
+call the status tool on a later turn or from a bounded coordinator topic. If
+automatic completion notifications are required, Copilot Studio asynchronous
+flow responses may be used only after validating the selected channel and the
+new agent infrastructure. They are supported in Teams but not Microsoft 365
+Copilot or telephony channels.
 
 The bridge permits 90 seconds of clock skew for Power Automate timestamps.
 Keep the gateway workstation time synchronized; verify drift with `w32tm
 /stripchart /computer:time.windows.com /dataonly /samples:3` before increasing
 this tolerance.
 
-The initial start action was validated on August 4, 2026. Power Automate run
-`08584157111616627324376857134CU39` accepted bridge request
-`c2ef7927-6053-4f78-99a5-29b62bdc4554`, which completed through the local
-RobotAPI client with the expected synthetic `out_Result`.
+Validated on August 5, 2026: the start flow returned `Accepted` in three seconds.
+Status-flow run `08584156819349106950074449764CU245` returned `Running` for a
+delayed fake job, and run `08584156822002924605222324752CU150` returned
+`Completed`. A separate real RobotAPI run also returned the expected synthetic
+`out_Result`.
 
 ## Add The Tool
 
-Publish the flow, then add it from the agent's **Tools** page. Use the tool name
-and description in `tool-descriptions.md`. Configure both inputs explicitly and
-test Accepted, Running, Completed, Failed, cancellation, gateway unavailable,
-and desktop unavailable paths before publishing the agent.
+Publish both flows, then add them from the agent's **Tools** page. Use the names
+and descriptions in `tool-descriptions.md`. Test Accepted, Running, Completed,
+Failed, cancellation, bounded timeout, gateway unavailable, and desktop
+unavailable paths before publishing the agent.
 
-Reference: [call an agent flow from an agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-use-flow).
+References: [call an agent flow from an agent](https://learn.microsoft.com/en-us/microsoft-copilot-studio/advanced-use-flow)
+and [asynchronous flow responses](https://learn.microsoft.com/en-us/microsoft-copilot-studio/flow-asynchronous-response).
