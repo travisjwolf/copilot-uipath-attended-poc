@@ -120,6 +120,8 @@ The now-unblocked Phase 7 artifacts are under `docs/power-platform/`:
 - `on-premises-data-gateway.md` preserves the localhost-only gateway boundary.
 - `copilot-studio-agent-flow.md` describes the two-flow, long-running job
   pattern.
+- `copilot-studio-agent.md` records the dedicated agent configuration and the
+  remaining Copilot Studio access requirement.
 - `tool-descriptions.md` and `mock-responses.md` provide safe agent guidance.
 
 Validated on August 5, 2026, in `UiPath (default) (Upgrade)`:
@@ -143,3 +145,9 @@ take ten minutes. Poll with the status flow at 15-second intervals, capped at
 48 checks or 12 minutes, or use Copilot Studio asynchronous responses only
 after confirming the target channel supports them. No public endpoint or
 production integration has been provisioned.
+
+A private `UiPath Attended PoC Agent` now exists in Microsoft 365 Agent Builder
+with the synthetic-data and status-handling instructions applied. Copying it to
+full Copilot Studio and attaching the flows is waiting on the environment's
+`agent author` role and successful access to `copilotstudio.microsoft.com`; see
+`docs/power-platform/copilot-studio-agent.md`.
