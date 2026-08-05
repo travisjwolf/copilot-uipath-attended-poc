@@ -17,10 +17,9 @@
     "application/json"
   ],
   "securityDefinitions": {
-    "api_key": {
-      "type": "apiKey",
-      "name": "X-Api-Key",
-      "in": "header"
+    "gateway_basic": {
+      "type": "basic",
+      "description": "Use CopilotGateway as the username and the bridge API key as the password."
     }
   },
   "paths": {
@@ -33,7 +32,7 @@
         "x-ms-visibility": "important",
         "security": [
           {
-            "api_key": []
+            "gateway_basic": []
           }
         ],
         "parameters": [
@@ -106,7 +105,7 @@
         "x-ms-visibility": "important",
         "security": [
           {
-            "api_key": []
+            "gateway_basic": []
           }
         ],
         "parameters": [
@@ -145,7 +144,7 @@
         "x-ms-visibility": "important",
         "security": [
           {
-            "api_key": []
+            "gateway_basic": []
           }
         ],
         "parameters": [
@@ -187,7 +186,7 @@
       }
     },
     "Unauthorized": {
-      "description": "The API key is missing or invalid.",
+      "description": "The bridge credentials are missing or invalid.",
       "schema": {
         "$ref": "#/definitions/ErrorResponse"
       }

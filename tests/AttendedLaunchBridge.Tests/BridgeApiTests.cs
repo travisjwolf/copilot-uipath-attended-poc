@@ -1,5 +1,7 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using AttendedLaunchBridge.Api.Contracts;
 using AttendedLaunchBridge.Api.Domain;
 using AttendedLaunchBridge.Api.Options;
@@ -82,7 +84,45 @@ public sealed class BridgeApiTests : IDisposable
         var response = await clientWithoutApiKey.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-        Assert.Equal("ApiKey", response.Headers.WwwAuthenticate.Single().Scheme);
+        Assert.Contains(
+            response.Headers.WwwAuthenticate,
+            value => value.Scheme == "ApiKey");
+        Assert.Contains(
+            response.Headers.WwwAuthenticate,
+            value => value.Scheme == "Basic");
+    }
+
+    [Fact]
+    public async Task Jobs_AcceptsGatewayBasicAuthentication()
+    {
+        using var gatewayClient = _factory.CreateClient();
+        var credentials = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes(
+                $"CopilotGateway:{BridgeWebApplicationFactory.ApiKey}"));
+        gatewayClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Basic", credentials);
+        using var request = CreateStartJobMessage(CreateRequest("CopilotAttendedPoC"));
+
+        var response = await gatewayClient.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var accepted = await ReadAcceptedAsync(response);
+        await gatewayClient.PostAsync($"/api/jobs/{accepted.RequestId}/cancel", null);
+    }
+
+    [Fact]
+    public async Task Jobs_RejectsInvalidGatewayBasicAuthentication()
+    {
+        using var gatewayClient = _factory.CreateClient();
+        var credentials = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes("CopilotGateway:incorrect-synthetic-key"));
+        gatewayClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Basic", credentials);
+        using var request = CreateStartJobMessage(CreateRequest("CopilotAttendedPoC"));
+
+        var response = await gatewayClient.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [Fact]

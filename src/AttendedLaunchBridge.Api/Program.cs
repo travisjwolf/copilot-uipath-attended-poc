@@ -42,6 +42,11 @@ builder.Services
         options => !string.IsNullOrWhiteSpace(options.ApiKey),
         $"Set Bridge:ApiKey with user secrets or the {BridgeSecurityOptions.ApiKeyEnvironmentVariable} environment variable.")
     .Validate(
+        options => !options.EnableGatewayBasicAuthentication ||
+                   (!string.IsNullOrWhiteSpace(options.GatewayBasicUsername) &&
+                    !options.GatewayBasicUsername.Contains(':')),
+        "The gateway Basic-auth username must be nonempty and cannot contain a colon.")
+    .Validate(
         options => options.RequestMaxAgeSeconds > 0 &&
                    options.AllowedClockSkewSeconds >= 0 &&
                    options.MaxRequestBodyBytes > 0 &&

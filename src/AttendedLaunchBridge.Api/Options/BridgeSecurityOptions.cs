@@ -13,6 +13,10 @@ public sealed class BridgeSecurityOptions
 
     public string ApiKeyHeaderName { get; init; } = DefaultApiKeyHeaderName;
 
+    public bool EnableGatewayBasicAuthentication { get; init; } = true;
+
+    public string GatewayBasicUsername { get; init; } = "CopilotGateway";
+
     public string IdempotencyKeyHeaderName { get; init; } = DefaultIdempotencyKeyHeaderName;
 
     public string RequestTimestampHeaderName { get; init; } = DefaultRequestTimestampHeaderName;

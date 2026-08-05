@@ -7,8 +7,9 @@ the currently logged-in Windows user's interactive session.
 The current increment implements the secured API, its default fake Robot
 client, a compiled `UiPath.Robot.Api` adapter, and a synthetic attended
 workflow. Package version `1.0.6` is published to the authenticated user's
-staging personal workspace. A real bridge-to-RobotAPI job completed in the
-interactive Windows session and returned `out_Result`.
+staging personal workspace. Real local RobotAPI and Power Platform gateway
+requests completed in the interactive Windows session and returned
+`out_Result`.
 
 ## Safety Boundary
 
@@ -62,11 +63,13 @@ $job = .\scripts\start-test-job.ps1
 .\scripts\get-job-status.ps1 -RequestId $job.requestId
 ```
 
-Job endpoints require `X-Api-Key`; starts also require `Idempotency-Key` and an
-ISO-8601 `X-Request-Timestamp`. The bridge validates the allowlist and input
-sizes, expires stale requests, generates correlation/request IDs, and permits
-one attended job at a time. Job and idempotency state are in memory and reset
-when the bridge restarts.
+Job endpoints require `X-Api-Key` for direct callers. The on-premises gateway
+uses Basic authentication with the fixed username `CopilotGateway` and the same
+API key as its password. Starts also require `Idempotency-Key` and an ISO-8601
+`X-Request-Timestamp`. The bridge validates the allowlist and input sizes,
+expires stale requests, generates correlation/request IDs, and permits one
+attended job at a time. Job and idempotency state are in memory and reset when
+the bridge restarts.
 
 ## UiPath Workflow
 
@@ -107,10 +110,17 @@ verified with synthetic data on August 3, 2026. See
 The now-unblocked Phase 7 artifacts are under `docs/power-platform/`:
 
 - `custom-connector.swagger.json` defines the three OpenAPI 2.0 connector
-  actions with API-key authentication.
+  actions with gateway-compatible Basic authentication.
 - `on-premises-data-gateway.md` preserves the localhost-only gateway boundary.
 - `copilot-studio-agent-flow.md` describes the idempotent flow and polling loop.
 - `tool-descriptions.md` and `mock-responses.md` provide safe agent guidance.
 
-These files are design artifacts only. No gateway, connector, flow, agent,
-public endpoint, or production integration has been provisioned.
+Validated on August 4, 2026, in `UiPath (default) (Upgrade)`:
+
+- Unmanaged solution: `Copilot UiPath Attended PoC`
+- Connector: `Copilot UiPath Attended Bridge`
+- Gateway: `CopilotUiPathAttendedPoc-Gateway-01` in North Europe
+- Synthetic request `829ab915-b780-4cda-88b8-4f10d30beac5`: `Completed`
+
+No Copilot Studio flow, public endpoint, or production integration has been
+provisioned.
