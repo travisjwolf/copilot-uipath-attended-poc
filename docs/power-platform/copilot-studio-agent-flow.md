@@ -6,9 +6,9 @@
    solution.
 2. Import `custom-connector.swagger.json` as a custom connector named
    `Copilot UiPath Attended Bridge`.
-3. Review API-key authentication, create a gateway-backed connection, and test
-   with synthetic values. Do not paste the API key into a flow action or agent
-   instruction.
+3. Create a gateway-backed Basic authentication connection. Use the fixed
+   username `CopilotGateway` and the bridge API key as the password; do not paste
+   the key into a flow action or agent instruction.
 
 ## Build The Agent Flow
 
@@ -30,6 +30,16 @@ agent**. Accept only `message` and `requestedBy` string inputs.
 Disable connector automatic retries for non-idempotent starts only if the flow
 cannot guarantee reuse of the composed idempotency key. A retry must reuse the
 same key and request body.
+
+The bridge permits 90 seconds of clock skew for Power Automate timestamps.
+Keep the gateway workstation time synchronized; verify drift with `w32tm
+/stripchart /computer:time.windows.com /dataonly /samples:3` before increasing
+this tolerance.
+
+The initial start action was validated on August 4, 2026. Power Automate run
+`08584157111616627324376857134CU39` accepted bridge request
+`c2ef7927-6053-4f78-99a5-29b62bdc4554`, which completed through the local
+RobotAPI client with the expected synthetic `out_Result`.
 
 ## Add The Tool
 

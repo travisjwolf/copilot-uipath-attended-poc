@@ -25,7 +25,7 @@ public sealed class BridgeSecurityOptions
 
     public int RequestMaxAgeSeconds { get; init; } = 300;
 
-    public int AllowedClockSkewSeconds { get; init; } = 30;
+    public int AllowedClockSkewSeconds { get; init; } = 90;
 
     public long MaxRequestBodyBytes { get; init; } = 16_384;
 

@@ -71,6 +71,12 @@ expires stale requests, generates correlation/request IDs, and permits one
 attended job at a time. Job and idempotency state are in memory and reset when
 the bridge restarts.
 
+`AllowedClockSkewSeconds` defaults to 90 for cloud-to-workstation requests. A
+Power Automate validation run measured this workstation about 53 seconds behind
+Microsoft's time service. Verify drift with `w32tm /stripchart
+/computer:time.windows.com /dataonly /samples:3`; production hosts should use
+reliable time synchronization and the smallest practical tolerance.
+
 ## UiPath Workflow
 
 `uipath/CopilotAttendedPoC/` accepts `in_RequestId`, `in_Message`, and
@@ -121,6 +127,11 @@ Validated on August 4, 2026, in `UiPath (default) (Upgrade)`:
 - Connector: `Copilot UiPath Attended Bridge`
 - Gateway: `CopilotUiPathAttendedPoc-Gateway-01` in North Europe
 - Synthetic request `829ab915-b780-4cda-88b8-4f10d30beac5`: `Completed`
+- Agent flow: `Run UiPath Attended PoC` with zero flow-checker errors or warnings
+- Power Automate run `08584157111616627324376857134CU39`: `Succeeded`
+- Flow request `c2ef7927-6053-4f78-99a5-29b62bdc4554`: `Completed` through
+  local RobotAPI with the expected synthetic `out_Result`
 
-No Copilot Studio flow, public endpoint, or production integration has been
-provisioned.
+The initial agent flow starts the allowlisted process with synthetic inputs.
+Status polling and the final agent response remain the next increment. No
+public endpoint or production integration has been provisioned.
