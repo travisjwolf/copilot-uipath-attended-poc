@@ -38,3 +38,10 @@ credentials*.json
 # OS files
 Thumbs.db
 .DS_Store
+
+# added by backup script 2026-11-09
+node_modules/
+.venv/
+bin/
+obj/
+.uv-cache/
